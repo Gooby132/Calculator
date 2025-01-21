@@ -27,6 +27,17 @@ namespace Calculator.Web.Controllers
             _uow = uow;
         }
 
+        [HttpGet("available-operations")]
+        public IActionResult AvailableOperations(CancellationToken token = default)
+        {
+            return Ok(new AvailableOperationsResponse
+            {
+                Computations = Computation.List.Select(c => new Users.Dtos.ComputationDto(
+                    c.Value,
+                    c.Name
+                ))
+            });
+        }
 
         [HttpPost("append-operation")]
         public async Task<IActionResult> AppendOperation(AppendOperationRequest request, CancellationToken token = default)
@@ -115,7 +126,7 @@ namespace Calculator.Web.Controllers
                     Errors = operation.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
                 });
 
-            // fetch user
+            // fetch userHistory
 
             var user = await _userRepository.GetById(request.UserId, token);
 
@@ -165,7 +176,7 @@ namespace Calculator.Web.Controllers
         }
 
         [HttpGet("fetch-history")]
-        public async Task<IActionResult> FetchHistory(FetchHistoryRequest request, CancellationToken token = default)
+        public async Task<IActionResult> FetchHistory([FromQuery] FetchHistoryRequest request, CancellationToken token = default)
         {
             var user = await _userRepository.GetOperations(request.UserId, request.Size, request.Page, token: token);
 

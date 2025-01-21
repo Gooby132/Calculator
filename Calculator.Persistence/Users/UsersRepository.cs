@@ -56,11 +56,11 @@ public class UsersRepository : IUserRepository
         try
         {
             return await _context.Users
-            .Include(u => u.Operations)
-            .Skip(page)
-            .Take(page)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id, token);
+                .Include(u => u.Operations)
+                .Skip(page)
+                .Take(page)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id, token);
         }
         catch (Exception e)
         {

@@ -25,6 +25,16 @@ namespace Calculator.Web
             builder.Services.AddTransient<IOperationService, RemoteOperationService>();
             builder.Services.AddTransient<IUnitOfWork, ApplicationUnitOfWork>();
 
+            builder.Services.AddCors(o =>
+            {
+                o.AddDefaultPolicy(p =>
+                {
+                    p.AllowAnyHeader();
+                    p.AllowAnyMethod();
+                    p.AllowAnyOrigin();
+                });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -38,6 +48,7 @@ namespace Calculator.Web
 
             app.UseAuthorization();
 
+            app.UseCors();
 
             app.MapControllers();
 

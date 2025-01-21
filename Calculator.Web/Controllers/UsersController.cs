@@ -33,15 +33,29 @@ namespace Calculator.Web.Controllers
             var remoteIpAddress = request.InternetAddress ?? HttpContext.Connection.RemoteIpAddress?.ToString();
 
             if (string.IsNullOrEmpty(remoteIpAddress))
-                return BadRequest(new AppendOperationResponse
+                return BadRequest(new LoginUserResponse
                 {
                     Errors = [new ErrorDto { Error = 999, Message = "user id not provided" }]
+                });
+
+            var doesExist = await _userRepository.GetByInternetAddress(remoteIpAddress, token);
+
+            if(doesExist.IsFailed)
+                return BadRequest(new LoginUserResponse
+                {
+                    Errors = doesExist.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
+                });
+
+            if (doesExist.Value is not null)
+                return Ok(new LoginUserResponse
+                {
+                    User = doesExist.Value.ToDto()
                 });
 
             var user = Domain.Users.User.Create(remoteIpAddress);
 
             if (user.IsFailed)
-                return BadRequest(new AppendOperationResponse
+                return BadRequest(new LoginUserResponse
                 {
                     Errors = user.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
                 });
@@ -49,7 +63,7 @@ namespace Calculator.Web.Controllers
             var persist = await _userRepository.Persist(user.Value, token);
 
             if (persist.IsFailed)
-                return BadRequest(new AppendOperationResponse
+                return BadRequest(new LoginUserResponse
                 {
                     Errors = user.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
                 });
@@ -57,7 +71,7 @@ namespace Calculator.Web.Controllers
             var uow = await _uow.Commit(token);
 
             if (uow.IsFailed)
-                return BadRequest(new AppendOperationResponse
+                return BadRequest(new LoginUserResponse
                 {
                     Errors = user.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
                 });
