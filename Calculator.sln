@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Persistence", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Web", "Calculator.Web\Calculator.Web.csproj", "{5D109810-F8DE-493A-9469-1D9A1A1C3BD6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Infrastructure", "Calculator.Infrastructure\Calculator.Infrastructure.csproj", "{5F04841D-76A0-405B-BC68-49E7ABEEA7B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{5D109810-F8DE-493A-9469-1D9A1A1C3BD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D109810-F8DE-493A-9469-1D9A1A1C3BD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D109810-F8DE-493A-9469-1D9A1A1C3BD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F04841D-76A0-405B-BC68-49E7ABEEA7B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F04841D-76A0-405B-BC68-49E7ABEEA7B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F04841D-76A0-405B-BC68-49E7ABEEA7B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F04841D-76A0-405B-BC68-49E7ABEEA7B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

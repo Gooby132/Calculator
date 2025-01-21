@@ -8,14 +8,26 @@ namespace Calculator.Domain.Users;
 public class User
 {
 
-    public required string Id { get; init; }
+    public int Id { get; init; }
+    public required string InternetAddress { get; init; }
     public ICollection<Operation> Operations { get; init; } = new List<Operation>();
 
-    public async Task<Result> ComputeAndAppendOperation(Operation operation, IOperationService service, CancellationToken token = default)
+    public static Result<User> Create(string ip)
+    {
+        if (string.IsNullOrWhiteSpace(ip))
+            return Result.Fail(ErrorFactory.UserIdNotProvided());
+
+        return new User 
+        { 
+            InternetAddress = ip
+        };
+    }
+
+    public async Task<Result<Operation>> ComputeAndAppendOperation(Operation operation, IOperationService service, CancellationToken token = default)
     {
 
         Result<Operation> computation;
-        if (operation.IsCustom)
+        if (!operation.IsCustom)
             computation = operation.Calculate();
         else
             computation = await operation.CustomCalculation(service, token);
@@ -25,13 +37,18 @@ public class User
 
         Operations.Add(computation.Value);
 
-        return Result.Ok();
+        return computation;
     }
 
     public Result AppendOperation(Operation? operation) 
     {
+
+        if (operation is null)
+            return Result.Fail(ErrorFactory.OperationProvidedIsNull());
+
         Operations.Add(operation);
 
+        return Result.Ok();
     }
 
     public IEnumerable<Operation> YetComputedCalculations() =>

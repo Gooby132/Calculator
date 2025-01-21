@@ -36,4 +36,9 @@ public static class ErrorFactory
 
     public static Result<Operation> OperationProvidedIsInvalid() =>
         new ErrorBase(9, "operation provided is invalid");
+
+    internal static IError UserIdNotProvided()
+    {
+        throw new NotImplementedException();
+    }
 }

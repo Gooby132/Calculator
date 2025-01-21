@@ -5,7 +5,6 @@ using Calculator.Domain.Users.Errors;
 using Calculator.Domain.Users.ValueObjects;
 using Calculator.Persistence.Context;
 using Calculator.Web.Helpers;
-using Calculator.Web.Shared;
 using Calculator.Web.Users.Request;
 using Calculator.Web.Users.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -28,19 +27,10 @@ namespace Calculator.Web.Controllers
             _uow = uow;
         }
 
+
+        [HttpPost("append-operation")]
         public async Task<IActionResult> AppendOperation(AppendOperationRequest request, CancellationToken token = default)
         {
-
-            // try get user id
-
-            var remoteIpAddress = request.UserId ?? HttpContext.Connection.RemoteIpAddress?.ToString();
-
-            if (string.IsNullOrEmpty(remoteIpAddress))
-                return BadRequest(new AppendOperationResponse
-
-                {
-                    Errors = [new ErrorDto { Error = 999, Message = "user id not provided" }]
-                });
 
             if (request.Operation is null)
                 return BadRequest(new AppendOperationResponse
@@ -60,7 +50,7 @@ namespace Calculator.Web.Controllers
 
             // fetch user
 
-            var user = await _userRepository.GetById(remoteIpAddress, token);
+            var user = await _userRepository.GetById(request.UserId, token);
 
             if (user.IsFailed)
                 return BadRequest(new AppendOperationResponse
@@ -69,7 +59,7 @@ namespace Calculator.Web.Controllers
                 });
 
             if (user.Value is null)
-                return NotFound(remoteIpAddress);
+                return NotFound(request.UserId);
 
             // append user operations to later job queue
 
@@ -83,7 +73,7 @@ namespace Calculator.Web.Controllers
 
             // persist changes
 
-            var update = await _userRepository.Update(user.Value, token);
+            var update = _userRepository.Update(user.Value);
 
             if (update.IsFailed)
                 return BadRequest(new AppendOperationResponse
@@ -104,17 +94,10 @@ namespace Calculator.Web.Controllers
             return Ok(new AppendOperationResponse { });
         }
 
-        public async Task<IActionResult> DoOperation(DoOperationRequest request,CancellationToken token = default)
+        [HttpPost("do-operation")]
+        public async Task<IActionResult> DoOperation(DoOperationRequest request, CancellationToken token = default)
         {
             // try get user id
-
-            var remoteIpAddress = request.UserId ?? HttpContext.Connection.RemoteIpAddress?.ToString();
-
-            if (string.IsNullOrEmpty(remoteIpAddress))
-                return BadRequest(new DoOperationResponse
-                {
-                    Errors = [new ErrorDto { Error = 999, Message = "user id not provided" }]
-                });
 
             if (request.Operation is null)
                 return BadRequest(new DoOperationResponse
@@ -134,7 +117,7 @@ namespace Calculator.Web.Controllers
 
             // fetch user
 
-            var user = await _userRepository.GetById(remoteIpAddress, token);
+            var user = await _userRepository.GetById(request.UserId, token);
 
             if (user.IsFailed)
                 return BadRequest(new DoOperationResponse
@@ -143,7 +126,7 @@ namespace Calculator.Web.Controllers
                 });
 
             if (user.Value is null)
-                return NotFound(remoteIpAddress);
+                return NotFound(request.UserId);
 
             // append user operations to later job queue
 
@@ -157,7 +140,7 @@ namespace Calculator.Web.Controllers
 
             // persist changes
 
-            var update = await _userRepository.Update(user.Value, token);
+            var update = _userRepository.Update(user.Value);
 
             if (update.IsFailed)
                 return BadRequest(new DoOperationResponse
@@ -175,8 +158,29 @@ namespace Calculator.Web.Controllers
                     Errors = transaction.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
                 });
 
-            return Ok(new DoOperationResponse { });
+            return Ok(new DoOperationResponse
+            {
+                Operation = res.Value.ToDto()
+            });
         }
 
+        [HttpGet("fetch-history")]
+        public async Task<IActionResult> FetchHistory(FetchHistoryRequest request, CancellationToken token = default)
+        {
+            var user = await _userRepository.GetOperations(request.UserId, request.Size, request.Page, token: token);
+
+            if (user.IsFailed) return BadRequest(new FetchHistoryResponse
+            {
+                Errors = user.Errors.Where(e => e is ErrorBase).Select(e => (e as ErrorBase)!.ToDto())
+            });
+
+            if (user.Value is null)
+                return NotFound(request.UserId);
+
+            return Ok(new FetchHistoryResponse
+            {
+                Operations = user.Value.Operations.Select(o => o.ToDto())
+            });
+        }
     }
 }

@@ -57,8 +57,8 @@ public class Computation : SmartEnum<Computation>
 
     private Result<Operation> DoConcatenation(Operation operation)
     {
-        var result = operation.Value1.Concat(operation.Value2);
-        return operation.SetResult(result.ToString());
+        var result = operation.Value1 + operation.Value2;
+        return operation.SetResult(result);
     }
 
     private Result<Operation> DoMultiplication(Operation operation)

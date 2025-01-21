@@ -5,7 +5,7 @@ namespace Calculator.Web.Users.Request;
 public class DoOperationRequest
 {
 
-    public required string UserId { get; init; }
+    public required int UserId { get; init; }
     public required OperationDto Operation { get; init; }
 
 }
