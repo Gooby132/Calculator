@@ -36,7 +36,6 @@ const App = () => {
         );
 
         setUser(data.data.user);
-        fetchHistory();
       } catch (error) {
         console.log(error);
       }
@@ -47,23 +46,6 @@ const App = () => {
         const data = await axios.get(
           "https://localhost:7145/api/Operations/available-operations"
         );
-        setAvailableOperations(data.data.computations);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const fetchHistory = async (userId) => {
-      try {
-        const data = await axios.get(
-          "https://localhost:7145/api/Operations/fetch-history",
-          {
-            userId: user.id,
-            size: 3,
-            page: 0,
-          }
-        );
-
         setAvailableOperations(data.data.computations);
       } catch (error) {
         console.log(error);
